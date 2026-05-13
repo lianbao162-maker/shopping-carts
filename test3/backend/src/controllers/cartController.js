@@ -2,7 +2,7 @@ const Cart = require('../models/Cart');
 
 async function getCart(req, res) {
   try {
-    const cartItems = await Cart.find().populate('productId');
+    const cartItems = await Cart.find({ userId: req.user._id }).populate('productId');
     res.json(cartItems);
   } catch (error) {
     res.status(500).json({ message: 'Failed to load cart' });
@@ -12,12 +12,12 @@ async function getCart(req, res) {
 async function addToCart(req, res) {
   try {
     const { productId, quantity } = req.body;
-    let item = await Cart.findOne({ productId });
+    let item = await Cart.findOne({ userId: req.user._id, productId });
 
     if (item) {
       item.quantity += quantity;
     } else {
-      item = new Cart({ productId, quantity });
+      item = new Cart({ userId: req.user._id, productId, quantity });
     }
 
     await item.save();
@@ -30,7 +30,14 @@ async function addToCart(req, res) {
 async function updateCartItem(req, res) {
   try {
     const { quantity } = req.body;
-    const item = await Cart.findByIdAndUpdate(req.params.id, { quantity }, { new: true });
+    const item = await Cart.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user._id },
+      { quantity },
+      { new: true }
+    );
+    if (!item) {
+      return res.status(404).json({ message: 'Cart item not found' });
+    }
     res.json(item);
   } catch (error) {
     res.status(500).json({ message: 'Failed to update cart item' });
@@ -39,7 +46,10 @@ async function updateCartItem(req, res) {
 
 async function deleteCartItem(req, res) {
   try {
-    await Cart.findByIdAndDelete(req.params.id);
+    const deleted = await Cart.findOneAndDelete({ _id: req.params.id, userId: req.user._id });
+    if (!deleted) {
+      return res.status(404).json({ message: 'Cart item not found' });
+    }
     res.json({ message: 'Item deleted' });
   } catch (error) {
     res.status(500).json({ message: 'Failed to delete cart item' });
@@ -48,7 +58,7 @@ async function deleteCartItem(req, res) {
 
 async function clearCart(req, res) {
   try {
-    await Cart.deleteMany({});
+    await Cart.deleteMany({ userId: req.user._id });
     res.json({ message: 'Cart cleared' });
   } catch (error) {
     res.status(500).json({ message: 'Failed to clear cart' });

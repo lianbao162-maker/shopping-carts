@@ -1,4 +1,4 @@
-import { loadProducts } from './products.js';
+import { loadProducts, setupLiveSearch } from './products.js';
 import {
   loadCart,
   setupCartInteractions,
@@ -6,6 +6,12 @@ import {
   handleCheckout
 } from './cart.js';
 import { setupModal, showProductModal } from './modal.js';
+import { bootstrapAuth, setupAuthForm } from './auth.js';
+import { setupAdminActions } from './admin.js';
+
+async function refreshUserState() {
+  await loadCart();
+}
 
 function setupLayoutInteractions() {
   const cartToggle = document.getElementById('cart-toggle');
@@ -23,12 +29,20 @@ async function init() {
   setupLayoutInteractions();
   setupCartInteractions();
   setupModal({ onAddToCart: handleAddToCart });
+  setupAdminActions();
+  setupAuthForm({ onAuthChanged: refreshUserState });
 
   await loadProducts({
     onCardClick: showProductModal,
     onAddToCart: handleAddToCart
   });
-  await loadCart();
+
+  setupLiveSearch({
+    onCardClick: showProductModal,
+    onAddToCart: handleAddToCart
+  });
+
+  await bootstrapAuth(refreshUserState);
 }
 
 init();

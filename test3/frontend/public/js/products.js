@@ -20,29 +20,9 @@ export async function loadProducts({ onCardClick, onAddToCart }) {
 
   try {
     const products = await fetchProducts();
+    state.products = products;
     state.productsById = Object.fromEntries(products.map((product) => [product._id, product]));
-    productsDiv.innerHTML = '';
-
-    products.forEach((product) => {
-      const card = document.createElement('article');
-      card.className = 'product';
-      card.innerHTML = `
-        <img src="${product.imageURL}" alt="${product.name}" class="product-image" onerror="this.src='${fallbackImage}'">
-        <h3>${product.name}</h3>
-        <p>${product.description}</p>
-        <p>A$${product.price}</p>
-        <button class="add-to-cart-btn" data-product-id="${product._id}">Add to Cart</button>
-      `;
-
-      card.addEventListener('click', () => onCardClick(product));
-      const button = card.querySelector('.add-to-cart-btn');
-      button.addEventListener('click', async (event) => {
-        event.stopPropagation();
-        await onAddToCart(product._id);
-      });
-
-      productsDiv.appendChild(card);
-    });
+    renderProductsList(products, { onCardClick, onAddToCart });
 
     if (products.length === 0) {
       renderProductsStatus(
@@ -58,4 +38,53 @@ export async function loadProducts({ onCardClick, onAddToCart }) {
       'The frontend cannot reach the product API. This usually means the page was opened directly or the backend is not running.'
     );
   }
+}
+
+function renderProductsList(products, { onCardClick, onAddToCart }) {
+  const productsDiv = document.getElementById('products');
+  productsDiv.innerHTML = '';
+
+  products.forEach((product) => {
+    const card = document.createElement('article');
+    card.className = 'product';
+    card.innerHTML = `
+      <img src="${product.imageURL}" alt="${product.name}" class="product-image" onerror="this.src='${fallbackImage}'">
+      <h3>${product.name}</h3>
+      <p>${product.description}</p>
+      <p>A$${product.price}</p>
+      <button class="add-to-cart-btn" data-product-id="${product._id}">Add to Cart</button>
+    `;
+
+    card.addEventListener('click', () => onCardClick(product));
+    const button = card.querySelector('.add-to-cart-btn');
+    button.addEventListener('click', async (event) => {
+      event.stopPropagation();
+      await onAddToCart(product._id);
+    });
+
+    productsDiv.appendChild(card);
+  });
+}
+
+export function setupLiveSearch({ onCardClick, onAddToCart }) {
+  const searchInput = document.getElementById('product-search');
+  if (!searchInput) {
+    return;
+  }
+
+  searchInput.addEventListener('input', () => {
+    state.searchTerm = searchInput.value.trim().toLowerCase();
+
+    const filteredProducts = state.products.filter((product) => {
+      const haystack = `${product.name} ${product.description}`.toLowerCase();
+      return haystack.includes(state.searchTerm);
+    });
+
+    if (filteredProducts.length === 0) {
+      renderProductsStatus('No matches', 'Try a different search keyword.');
+      return;
+    }
+
+    renderProductsList(filteredProducts, { onCardClick, onAddToCart });
+  });
 }

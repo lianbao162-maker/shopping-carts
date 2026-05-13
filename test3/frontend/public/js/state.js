@@ -1,4 +1,8 @@
 export const state = {
   currentProduct: null,
-  productsById: {}
+  productsById: {},
+  products: [],
+  searchTerm: '',
+  currentUser: null,
+  allUserCarts: []
 };

@@ -7,6 +7,10 @@ import {
 } from './api.js';
 import { state } from './state.js';
 
+function isUnauthorized(error) {
+  return /status 401/.test(error.message) || /token/.test(error.message.toLowerCase());
+}
+
 function checkoutButton(total) {
   return `Checkout (A$${total.toFixed(2)})`;
 }
@@ -37,11 +41,21 @@ export function setCartStatus(detail) {
 }
 
 export async function loadCart() {
+  if (!state.currentUser) {
+    setCartStatus('Please login to view your personal cart.');
+    return;
+  }
+
   try {
     const cartItems = await fetchCart();
     renderCart(cartItems);
   } catch (error) {
     console.error('Failed to load cart:', error);
+    if (isUnauthorized(error)) {
+      setCartStatus('Please login again to access your cart.');
+      return;
+    }
+
     setCartStatus('Cart unavailable. Start the backend and reload the page.');
   }
 }
@@ -165,11 +179,21 @@ export function setupCartInteractions() {
 }
 
 export async function handleAddToCart(productId) {
+  if (!state.currentUser) {
+    alert('Please login first to add items to your cart.');
+    return;
+  }
+
   try {
     await addItemToCart(productId, 1);
     await loadCart();
   } catch (error) {
     console.error('Failed to add item to cart:', error);
+    if (isUnauthorized(error)) {
+      alert('Your session expired. Please login again.');
+      return;
+    }
+
     alert('The cart is unavailable right now. Start the backend and reload the page.');
   }
 }

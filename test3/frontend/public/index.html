@@ -18,10 +18,37 @@
         <h1>ShopHub</h1>
       </div>
       <div class="header-actions">
+        <input id="product-search" class="search-input" type="text" placeholder="Search products...">
         <span id="cart-toggle" class="cart-toggle">🛒 View Cart</span>
       </div>
     </div>
   </header>
+
+  <section class="auth-section">
+    <div class="auth-card">
+      <h3>Account</h3>
+      <div id="guest-auth" class="auth-forms">
+        <form id="register-form" class="auth-form">
+          <h4>Register</h4>
+          <input id="register-name" type="text" placeholder="Name" required>
+          <input id="register-email" type="email" placeholder="Email" required>
+          <input id="register-password" type="password" placeholder="Password" minlength="6" required>
+          <button type="submit">Create Account</button>
+        </form>
+        <form id="login-form" class="auth-form">
+          <h4>Login</h4>
+          <input id="login-email" type="email" placeholder="Email" required>
+          <input id="login-password" type="password" placeholder="Password" required>
+          <button type="submit">Sign In</button>
+        </form>
+      </div>
+      <div id="user-auth" class="user-auth" style="display: none;">
+        <p id="current-user-label"></p>
+        <button id="logout-btn" type="button">Logout</button>
+      </div>
+      <p id="auth-status" class="auth-status">Login to manage your cart.</p>
+    </div>
+  </section>
 
   <div class="container">
     <div id="products" class="products"></div>
@@ -39,6 +66,14 @@
         </div>
         <button id="checkout-btn" class="checkout-btn">Checkout (A$0.00)</button>
       </div>
+
+      <section id="admin-panel" class="admin-panel" style="display: none;">
+        <h3>Admin: All User Carts</h3>
+        <button id="refresh-admin-carts-btn" type="button">Refresh All Carts</button>
+        <div id="admin-carts-output" class="admin-carts-output">
+          <p class="admin-empty">No data loaded.</p>
+        </div>
+      </section>
     </div>
   </div>
 
