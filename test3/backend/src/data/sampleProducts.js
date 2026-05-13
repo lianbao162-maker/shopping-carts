@@ -1,24 +1,4 @@
-const mongoose = require('mongoose');
-
-// Connect to MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/ecommerce', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
-
-// Product Schema
-const productSchema = new mongoose.Schema({
-  name: String,
-  price: Number,
-  imageURL: String,
-  description: String,
-  stock: Number
-});
-
-const Product = mongoose.model('Product', productSchema);
-
-// Sample products with real Unsplash photos
-const sampleProducts = [
+module.exports = [
   {
     name: 'Wireless Headphones',
     price: 79.99,
@@ -62,27 +42,3 @@ const sampleProducts = [
     stock: 18
   }
 ];
-
-async function seedDatabase() {
-  try {
-    await Product.deleteMany({});
-    console.log('Cleared existing products');
-
-    const inserted = await Product.insertMany(sampleProducts);
-    console.log(`✓ Successfully inserted ${inserted.length} products`);
-
-    const allProducts = await Product.find();
-    console.log('\nProducts in database:');
-    allProducts.forEach((p, i) => {
-      console.log(`${i + 1}. ${p.name} - $${p.price} (Stock: ${p.stock})`);
-    });
-
-  } catch (error) {
-    console.error('Error seeding database:', error);
-  } finally {
-    mongoose.connection.close();
-    process.exit(0);
-  }
-}
-
-seedDatabase();

@@ -2,12 +2,12 @@
   "name": "shopping-cart",
   "version": "1.0.0",
   "description": "E-commerce shopping cart application",
-  "main": "server.js",
+  "main": "backend/src/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
+    "start": "node backend/src/server.js",
+    "dev": "node backend/src/server.js",
     "seed": "node seed.js",
-    "seed-and-start": "node seed.js && node server.js"
+    "seed-and-start": "node seed.js && node backend/src/server.js"
   },
   "keywords": ["shopping", "cart", "ecommerce"],
   "author": "",
