@@ -138,6 +138,42 @@ export async function fetchCurrentUser() {
   return payload.user;
 }
 
+export async function updateUserProfile(name, email) {
+  const res = await fetch(`${API_URL}/auth/profile`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders()
+    },
+    body: JSON.stringify({ name, email })
+  });
+
+  const payload = await res.json();
+  if (!res.ok) {
+    throw new Error(payload.message || 'Failed to update profile');
+  }
+
+  return payload.user;
+}
+
+export async function updatePassword(currentPassword, newPassword) {
+  const res = await fetch(`${API_URL}/auth/change-password`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders()
+    },
+    body: JSON.stringify({ currentPassword, newPassword })
+  });
+
+  const payload = await res.json();
+  if (!res.ok) {
+    throw new Error(payload.message || 'Failed to update password');
+  }
+
+  return payload;
+}
+
 export async function fetchAllUsersCarts() {
   const res = await fetch(`${API_URL}/admin/carts`, {
     headers: {

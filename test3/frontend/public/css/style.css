@@ -157,6 +157,51 @@ body {
   gap: 1rem;
 }
 
+.profile-section {
+  margin-top: 1rem;
+  border-top: 2px dashed var(--border-color);
+  padding-top: 1rem;
+}
+
+.profile-section h4 {
+  margin-bottom: 0.75rem;
+}
+
+.profile-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  max-width: 420px;
+}
+
+.profile-form h5 {
+  margin-bottom: 0.35rem;
+}
+
+.profile-form label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.profile-form input {
+  border: 1px solid var(--border-color);
+  border-radius: 0.45rem;
+  padding: 0.55rem 0.65rem;
+}
+
+.profile-form button {
+  margin-top: 0.4rem;
+  width: fit-content;
+  border: none;
+  border-radius: 0.45rem;
+  background: var(--secondary-color);
+  color: white;
+  font-weight: 600;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+}
+
 .admin-panel {
   margin-top: 1rem;
   border-top: 2px solid var(--border-color);

@@ -72,11 +72,73 @@ async function login(req, res) {
 }
 
 async function me(req, res) {
-  return res.json({ user: req.user });
+  return res.json({ user: sanitizeUser(req.user) });
+}
+
+async function updateProfile(req, res) {
+  try {
+    const { name, email } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!name || !email) {
+      return res.status(400).json({ message: 'Name and email are required' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const existingUser = await User.findOne({ email: normalizedEmail, _id: { $ne: user._id } });
+    if (existingUser) {
+      return res.status(409).json({ message: 'Email is already in use by another account' });
+    }
+
+    user.name = name.trim();
+    user.email = normalizedEmail;
+    await user.save();
+
+    return res.json({ user: sanitizeUser(user) });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to update profile' });
+  }
+}
+
+async function changePassword(req, res) {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Current password and new password are required' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters' });
+    }
+
+    const validCurrentPassword = await user.comparePassword(currentPassword);
+    if (!validCurrentPassword) {
+      return res.status(401).json({ message: 'Current password is incorrect' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    return res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to change password' });
+  }
 }
 
 module.exports = {
   register,
   login,
-  me
+  me,
+  updateProfile,
+  changePassword
 };
