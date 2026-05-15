@@ -6,7 +6,7 @@ import {
   handleCheckout
 } from './cart.js';
 import { setupModal, showProductModal } from './modal.js';
-import { bootstrapAuth, setupAuthForm } from './auth.js';
+import { bootstrapShopAuth, setupShopAuth } from './auth.js';
 import { setupAdminActions } from './admin.js';
 
 async function refreshUserState() {
@@ -26,11 +26,16 @@ function setupLayoutInteractions() {
 }
 
 async function init() {
+  const ready = await bootstrapShopAuth(refreshUserState);
+  if (!ready) {
+    return;
+  }
+
   setupLayoutInteractions();
   setupCartInteractions();
   setupModal({ onAddToCart: handleAddToCart });
   setupAdminActions();
-  setupAuthForm({ onAuthChanged: refreshUserState });
+  setupShopAuth({ onAuthChanged: refreshUserState });
 
   await loadProducts({
     onCardClick: showProductModal,
@@ -42,7 +47,7 @@ async function init() {
     onAddToCart: handleAddToCart
   });
 
-  await bootstrapAuth(refreshUserState);
+  await refreshUserState();
 }
 
 init();

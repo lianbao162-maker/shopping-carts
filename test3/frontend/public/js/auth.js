@@ -1,14 +1,16 @@
-import {
-  fetchCurrentUser,
-  loginUser,
-  registerUser,
-  updateUserProfile,
-  updatePassword
-} from './api.js';
+import { fetchCurrentUser, updateUserProfile, updatePassword } from './api.js';
 import { state } from './state.js';
+
+function redirectToEntry() {
+  window.location.href = './index.html';
+}
 
 function setAuthMessage(message, isError = false) {
   const authStatus = document.getElementById('auth-status');
+  if (!authStatus) {
+    return;
+  }
+
   authStatus.textContent = message;
   authStatus.classList.toggle('auth-error', isError);
 }
@@ -26,22 +28,16 @@ function populateProfileForm() {
 }
 
 function updateAuthUi(onAuthChanged) {
-  const guestView = document.getElementById('guest-auth');
   const userView = document.getElementById('user-auth');
   const userLabel = document.getElementById('current-user-label');
   const adminPanel = document.getElementById('admin-panel');
   const profileSection = document.getElementById('profile-section');
 
   if (!state.currentUser) {
-    guestView.style.display = 'flex';
-    userView.style.display = 'none';
-    adminPanel.style.display = 'none';
-    profileSection.style.display = 'none';
-    setAuthMessage('Login to manage your cart.');
+    redirectToEntry();
     return;
   }
 
-  guestView.style.display = 'none';
   userView.style.display = 'flex';
   userLabel.textContent = `${state.currentUser.name} (${state.currentUser.role})`;
   adminPanel.style.display = state.currentUser.role === 'admin' ? 'block' : 'none';
@@ -54,11 +50,11 @@ function updateAuthUi(onAuthChanged) {
   }
 }
 
-export async function bootstrapAuth(onAuthChanged) {
+export async function bootstrapShopAuth(onAuthChanged) {
   const token = localStorage.getItem('authToken');
   if (!token) {
-    updateAuthUi(onAuthChanged);
-    return;
+    redirectToEntry();
+    return false;
   }
 
   try {
@@ -67,52 +63,18 @@ export async function bootstrapAuth(onAuthChanged) {
   } catch (error) {
     localStorage.removeItem('authToken');
     state.currentUser = null;
+    redirectToEntry();
+    return false;
   }
 
   updateAuthUi(onAuthChanged);
+  return true;
 }
 
-export function setupAuthForm({ onAuthChanged }) {
-  const registerForm = document.getElementById('register-form');
-  const loginForm = document.getElementById('login-form');
+export function setupShopAuth({ onAuthChanged }) {
   const logoutBtn = document.getElementById('logout-btn');
   const profileForm = document.getElementById('profile-form');
   const passwordForm = document.getElementById('password-form');
-
-  registerForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const name = document.getElementById('register-name').value.trim();
-    const email = document.getElementById('register-email').value.trim();
-    const password = document.getElementById('register-password').value;
-
-    try {
-      const { token, user } = await registerUser(name, email, password);
-      localStorage.setItem('authToken', token);
-      state.currentUser = user;
-      registerForm.reset();
-      updateAuthUi(onAuthChanged);
-    } catch (error) {
-      setAuthMessage(error.message, true);
-    }
-  });
-
-  loginForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-
-    try {
-      const { token, user } = await loginUser(email, password);
-      localStorage.setItem('authToken', token);
-      state.currentUser = user;
-      loginForm.reset();
-      updateAuthUi(onAuthChanged);
-    } catch (error) {
-      setAuthMessage(error.message, true);
-    }
-  });
 
   logoutBtn.addEventListener('click', () => {
     localStorage.removeItem('authToken');
@@ -127,6 +89,7 @@ export function setupAuthForm({ onAuthChanged }) {
     if (typeof onAuthChanged === 'function') {
       onAuthChanged();
     }
+    redirectToEntry();
   });
 
   profileForm.addEventListener('submit', async (event) => {

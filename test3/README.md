@@ -1,45 +1,18 @@
-# E-Commerce Shopping Cart
+# ShopHub - Modular Shopping Cart
 
-## Problem Solved
+## Overview
 
-This website addresses the need for a functional online shopping experience with a clean user interface. Users can browse products, view detailed information, manage their shopping cart in real-time, and simulate checkout functionality. It demonstrates full-stack development by combining a responsive frontend with a robust backend and database.
+ShopHub is a full-stack shopping cart web app with:
 
-## Technical Stack
+- Customer registration and login
+- Admin login and admin-only all-users cart view
+- Live product search
+- User profile update and password change
+- Per-user cart isolation with JWT authentication
 
-```
-Frontend:
-├── HTML5 (Markup)
-├── CSS3 (Styling & Responsive Design)
-└── Vanilla JavaScript (Interactivity)
+The frontend and backend are separated into modular folders.
 
-Backend:
-└── Express.js (Node.js Framework)
-
-Database:
-└── MongoDB (NoSQL database for products & cart)
-
-Data Flow:
-├── API Endpoints (/products, /cart)
-├── Real-time DOM updates
-└── Server-side data persistence
-
-Deployment: Local server (http://localhost:3000)
-```
-
-## Features
-
-- ✓ Browse products with images and descriptions
-- ✓ View detailed product information in modal popup
-- ✓ Add/remove items from shopping cart
-- ✓ Adjust item quantities with +/- buttons
-- ✓ Real-time total price calculation
-- ✓ Shopping cart shows/hides on mobile
-- ✓ Responsive design (works on desktop and mobile)
-# E-Commerce Shopping Cart
-
-## Architecture
-
-This project is now separated into frontend and backend layers with modular code.
+## Final Project Structure
 
 ```
 test3/
@@ -48,18 +21,27 @@ test3/
 │       ├── config/
 │       │   └── db.js
 │       ├── controllers/
+│       │   ├── adminController.js
+│       │   ├── authController.js
 │       │   ├── cartController.js
 │       │   └── productController.js
 │       ├── data/
 │       │   └── sampleProducts.js
+│       ├── middleware/
+│       │   ├── auth.js
+│       │   └── authorize.js
 │       ├── models/
 │       │   ├── Cart.js
-│       │   └── Product.js
+│       │   ├── Product.js
+│       │   └── User.js
 │       ├── routes/
+│       │   ├── adminRoutes.js
+│       │   ├── authRoutes.js
 │       │   ├── cartRoutes.js
 │       │   └── productRoutes.js
 │       ├── services/
-│       │   └── seedService.js
+│       │   ├── seedService.js
+│       │   └── userService.js
 │       ├── app.js
 │       └── server.js
 ├── frontend/
@@ -67,54 +49,106 @@ test3/
 │       ├── css/
 │       │   └── style.css
 │       ├── js/
+│       │   ├── admin.js
 │       │   ├── api.js
+│       │   ├── auth.js
 │       │   ├── cart.js
+│       │   ├── landing.js
 │       │   ├── main.js
 │       │   ├── modal.js
 │       │   ├── products.js
 │       │   └── state.js
-│       └── index.html
+│       ├── index.html     # Account entry page
+│       └── shop.html      # ShopHub page (protected)
 ├── package.json
-├── seed.js
-└── server.js
+├── package-lock.json
+└── seed.js
 ```
+
+## Removed Unnecessary Files
+
+The following legacy files were removed because they were no longer used:
+
+- `app.js`
+- `index.html` (root duplicate)
+- `style.css` (root duplicate)
+- `shopping.jsx` (empty)
+- `server.js` (legacy wrapper)
+- `shopping cart.zip` (archive artifact)
+
+## Authentication Flow
+
+1. Open `http://localhost:3000/index.html`
+2. Choose one option:
+   - Register as Customer
+   - Login as Customer
+   - Login as Admin
+3. On success, user is redirected to `shop.html`
+4. Direct access to `shop.html` without valid token redirects to `index.html`
+
+## Default Admin Account
+
+- Email: `admin@shophub.local`
+- Password: `admin123456`
+
+## API Endpoints
+
+### Auth
+
+- `POST /auth/register`
+- `POST /auth/login`
+- `GET /auth/me`
+- `PUT /auth/profile`
+- `PUT /auth/change-password`
+
+### Products
+
+- `GET /products`
+
+### Cart (authenticated user only)
+
+- `GET /cart`
+- `POST /cart`
+- `PUT /cart/:id`
+- `DELETE /cart/:id`
+- `DELETE /cart`
+
+### Admin
+
+- `GET /admin/carts`
+- `GET /admin/shopping_cart`
 
 ## Tech Stack
 
-- Frontend: HTML, CSS, vanilla JavaScript modules
-- Backend: Node.js + Express
-- Database: MongoDB + Mongoose
-
-## API
-
-- GET /products
-- GET /cart
-- POST /cart
-- PUT /cart/:id
-- DELETE /cart/:id
-- DELETE /cart
+- Frontend: HTML, CSS, Vanilla JavaScript modules
+- Backend: Node.js, Express
+- Database: MongoDB, Mongoose
+- Auth: JWT, bcryptjs
 
 ## Setup
 
 1. Install dependencies:
 
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
-2. Ensure MongoDB is running locally on port 27017.
+2. Ensure MongoDB is running locally on `mongodb://127.0.0.1:27017`
 
-3. Start app:
+3. Start server:
 
-   ```bash
-   npm start
-   ```
+```bash
+npm start
+```
 
-4. Open http://localhost:3000
+4. Open:
 
-## Commands
+- `http://localhost:3000/index.html` (entry page)
+- `http://localhost:3000/shop.html` (shop page)
 
-- npm start: start modular backend server
-- npm run dev: same as start
-- npm run seed: clear and re-seed products
-- npm run seed-and-start: re-seed then start server
+## Scripts
+
+- `npm start` - start server
+- `npm run dev` - start server
+- `npm run seed` - clear and reseed products
+- `npm run seed-and-start` - reseed then start
