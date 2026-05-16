@@ -4,8 +4,11 @@
   "description": "E-commerce shopping cart application",
   "main": "backend/src/server.js",
   "scripts": {
+    "install:all": "npm install && cd frontend && npm install",
     "start": "node backend/src/server.js",
     "dev": "node backend/src/server.js",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
     "seed": "node seed.js",
     "seed-and-start": "node seed.js && node backend/src/server.js"
   },
